@@ -6,7 +6,10 @@ branches:
   only:
   - gh-pages
   - /.*/
-
+repos:
+  CRAN: https://cloud.r-project.org
+  ropensci: http://packages.ropensci.org
+  
 script:
   - Rscript -e 'servr:::knit_maybe(c(".", "_source", "_posts"), c(".", "_posts", "_posts"), "build.R", "jekyll")'
   
