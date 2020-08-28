@@ -1,22 +1,15 @@
 language: r
-cache:
-  directories:
-    - $TRAVIS_BUILD_DIR/packrat/src
-    - $TRAVIS_BUILD_DIR/packrat/lib
-  packages: true
 pandoc_version: 1.17.2
+cache: packages
 
 branches:
   only:
   - gh-pages
   - /.*/
-repos:
-  CRAN: https://cloud.r-project.org
-  ropensci: http://packages.ropensci.org
-  
+
 script:
-  - Rscript -e 'servr:::knit_maybe(c(".", "_source", "_posts"), c(".", "_posts", "_posts"), "build.R", "jekyll")'
-  
+  - Rscript knit.R
+
 deploy:
   provider: pages
   skip_cleanup: true
