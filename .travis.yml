@@ -3,7 +3,9 @@ cache: packages
 pandoc_version: 1.17.2
 
 branches:
-  only: source
+  only:
+  - gh-pages
+  - /.*/
 
 script:
   - Rscript -e 'servr:::knit_maybe(c(".", "_source", "_posts"), c(".", "_posts", "_posts"), "build.R", "jekyll")'
@@ -14,4 +16,4 @@ deploy:
   github_token: $GITHUB_PAT
   on:
     branch: source
-  target_branch: - gh-pages
+  target_branch: master
