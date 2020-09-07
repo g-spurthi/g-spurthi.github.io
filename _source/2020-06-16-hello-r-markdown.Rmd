@@ -3,6 +3,7 @@ layout: post
 title:  "Hello, R Markdown!"
 date:   2017-06-16 23:00:40 +0100
 categories: r jekyll
+permalink: /post1/
 ---
 
 You’ll find this post in your `_source` directory. Unlike the other example post on this blog (found in `_posts`), this one was written in R Markdown.
@@ -28,4 +29,4 @@ Want a local preview? Run
 ```r
 source('knit.R')
 ```
-in an R ression to compile the R Markdown files, then run `jekyll serve` on the command line to preview the site (you will need Jekyll installed for this).
+in an R session to compile the R Markdown files, then run `jekyll serve` on the command line to preview the site (you will need Jekyll installed for this).
