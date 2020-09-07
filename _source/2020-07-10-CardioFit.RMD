@@ -1,0 +1,452 @@
+---
+title: "CardioFit Analysis"
+layout: post
+date: "2020-07-10 23:00:40 +0100"
+categories: r jekyll
+---
+
+  
+## 1. Project Objective
+  
+  The objective of this report is to explore the Cardio Good Fitness data set in 
+R and extract insights about the data.
+
+This exploration report will consist of the following:
+  
+* Importing the dataset in R 
+* Understanding the structure of dataset
+* Graphical Exploration
+* Descriptive Statistics
+* Generate insights and recommendations that will help the company in targeting 
+new customers
+
+## 2. Assumptions 
+
+The dataset provided is a sample of the population for customers that bought the 
+treadmill product of Cardio Good Fitness Store. 
+
+## 3. Exploratory Data Analysis - Step by step approach
+
+```{r echo = FALSE}
+#======================================================================= 
+# 
+# Exploratory Data Analysis - CardioGoodFitness 
+# 
+#=======================================================================
+```
+
+### 3.1 Environment Set up and Data Import 
+
+#### 3.1.1 Install necessary packages and load libraries
+```{r,warning=FALSE, message=FALSE}
+
+
+library(ggplot2)# To create plots
+library(gridExtra)# To plot multiple ggplot graphs in a grid
+library(dplyr) # For data manipulation
+library(knitr)# Necessary to generate sourcecodes from a .Rmd File 
+library(corrplot) # To plot correlation plot between numerical variables
+library(reshape2)# To easily transform data between wide and long formats
+library(plotly) # R package for creating interactive web-based graphs 
+library(ggbeeswarm) #R package for plotting categorical scatter plots
+library(scales) # R package for internal scaling infrastructure used by ggplot2 
+library(webshot)
+
+```
+
+#### 3.1.2 Set up working Directory
+
+```{r}
+# Setup Working Directory 
+# Rmd considers it's directory as the working directory.
+# If the Rmd and data file is in the same directory there is no need of 
+# setting up the working directory.
+
+# While working with .R files,we need to set up the working directory using the following command
+# setwd("C:/Users")
+
+```
+
+
+#### 3.1.3 Import and Read the Dataset
+
+```{r}
+# Read Input File 
+Fitness = read.csv("CardioGoodFitness.csv")
+```
+
+
+#### 3.1.4 Global options settings
+```{r}
+# Global options settings 
+options(scipen=999) # turn off scientific notation like 1e+06
+```
+
+### 3.2 Variable Identification
+
+#### 3.2.1 Variable Insights
+
+**1. Checking the dimension of the dataset**
+```{r}
+dim(Fitness)
+
+```
+* The dataset has 180 rows and 9 columns
+
+
+**2. Checking the structure of the dataset**
+```{r}
+str(Fitness)
+
+```
+
+
+**3. Checking top 10 records**
+```{r}
+head(Fitness, 10)
+
+```
+* Product column shows the treadmill code
+* Age column shows the age of customer
+* Gender - The data is consistent
+* Education - No Of Years of Education the customer received
+* MaritalStatus - Shows the single or married marriage status
+* Usage - Shows how often the customer wants to use the treadmill
+* Fitness - Shows level of Fitness according to the customer
+* Income - Shows the income of the customer
+* Miles - Shows the number of miles the customer wants to run/walk on the 
+  treadmill.
+
+
+**4. Checking bottom 10 records**
+```{r}
+tail(Fitness, 10)
+
+```
+* Data is consistent with the top, no missing data or unknowns.
+
+
+**5. Checking the summary set of the data** 
+```{r}
+summary(Fitness)
+
+```
+
+
+### 3.3 Univariate Analysis
+
+**1. Observation based on gender**
+```{r}
+## Bar Chart for Customers By Gender
+Customers_By_Gender_Count = Fitness %>% count(Gender)
+
+ggplot(Customers_By_Gender_Count, 
+       aes(x = Gender, 
+           y = n)) + 
+  geom_bar(fill = "light blue", color="white",stat = "identity") +
+  geom_text(aes(label = n), 
+            vjust=-0.5) +
+  labs(x = "Gender", 
+       y = "Number of Customers", 
+       title  = "Number of Customers By Gender")
+```
+
+* Checking the number of customers by gender.
+* We have more number of male customers vs female customers.
+
+**2. Observation based on MaritalStatus**
+```{r}
+## Bar Chart for Customers By Product
+ggplot(Fitness, aes(x = MaritalStatus)) + 
+  geom_bar(fill = "light blue", color="white") +
+  labs(x = "",
+       y = "Number of Customers",
+       title = "Number of Customers By Marital Status") 
+
+```
+
+* Checking the number of customers by marital status
+* We have more number of partnered customers vs single customers.
+
+**3. Observation based on Product**
+```{r}
+## Bar Chart for Customers By Product
+ggplot(Fitness, aes(x = Product)) + 
+  geom_bar(fill = "light blue", color="white") +
+  labs(x = "",
+       y = "Number of Customers",
+       title = "Number of Customers By Product") +
+  coord_flip()
+
+```
+
+
+* TM195 seems to be the most popular treadmill product.
+
+```{r}
+# Function to draw histogram and boxplot of numerical variables using ggplot
+
+
+plot_histogram_n_boxplot = function(variable, variableNameString, binw){
+  h = ggplot(data = Fitness, aes(x= variable))+
+    labs(x = variableNameString,y ='No Of Custs')+
+    geom_histogram(fill = 'light blue',col = 'white',binwidth = binw)+
+    geom_vline(aes(xintercept=mean(variable)),
+               color="black", linetype="dashed", size=0.5)
+  b = ggplot(data = Fitness, aes('',variable))+ 
+    geom_boxplot(outlier.colour = 'blue',col = 'blue',outlier.shape = 19)+
+    labs(x = '',y = variableNameString)+ coord_flip()
+  grid.arrange(h,b,ncol = 2)
+}
+
+
+```
+
+**4. Observations on Age**
+
+```{r}
+plot_histogram_n_boxplot(Fitness$Age,'Age',10)
+```
+
+* The distribution of age is right skewed.
+* Majority of customers that purchased the thread mills are in their 20's
+
+**5. Observations on Education**
+
+```{r}
+
+plot_histogram_n_boxplot(Fitness$Education,'Education',5)
+
+```
+
+* The distribution of Education is left skewed.
+* Majority of customers that purchased the thread mills have atleast 15 years 
+of education.
+
+
+**6. Observations on Usage**
+```{r}
+plot_histogram_n_boxplot(Fitness$Usage,'Usage',1)
+
+```
+
+*  The distribution of Usage is right skewed.
+*  Majority of customers that purchased the thread mills plan on using the 
+threadmill aleast 3 times.
+
+
+**7. Observations on Income**
+```{r}
+plot_histogram_n_boxplot(Fitness$Income,'Income',2000)
+
+```
+
+*  The distribution of Income is right skewed.
+*  Majority of customers that purchased the thread mills have an income of 
+ atleast 45000
+
+
+**8. Observations on Fitness**
+```{r}
+plot_histogram_n_boxplot(Fitness$Fitness,'Fitness',1)
+
+```
+
+*  The distribution of Income is right skewed.
+*  Majority of customers think they have a normal fitness level.
+
+
+### 3.4 Bivariate Analysis
+
+**1. Observation based on product and gender**
+```{r}
+Customers_By_Product_Gender = Fitness %>% count(Product, Gender)
+          
+
+ggplot(Customers_By_Product_Gender, aes(factor(Product), n, fill = Gender)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1")+
+  labs(x = "Gender", 
+       y = "Number of Customers", 
+       title  = "Number of Customers By Gender and Product")
+```
+
+* Checking the distribution of Male and Female customers by Product Type.
+* TM798 seems to be more popular amoung Male vs Female Gender
+
+
+**2. Checking corelation amoung numeric variables**
+```{r}
+# Checking corelation amoung numeric variables
+
+# Numeric variables in the data
+num_vars = sapply(Fitness, is.numeric)
+
+```
+
+```{r}
+# Correlation Plot
+corrplot(cor(Fitness[,num_vars]), method = 'number')
+
+```
+
+* Usage and Fitness are correlated
+* Miles and Fitness are correlated
+* Income and Education are correlated
+
+
+**3. Relationship between Fitness and age, education,usage,income and miles**
+```{r}
+
+# Function to draw scatter plots of numerical variables against Product
+
+plot_scatterplot = function(variable, variableNameString, binw){
+  ggplot(data = Fitness, aes(x= variable, y = Fitness))+
+    labs(x = variableNameString,y ='Fitness')+
+    geom_point(color="light blue", size =2, alpha=.8)+
+    geom_smooth(method ="lm") # adds a linear trend line which is useful to summarize the relationship between the two variables
+}
+
+grid.arrange(plot_scatterplot(Fitness$Age, 'Age'),
+             plot_scatterplot(Fitness$Education, 'Education'),
+             plot_scatterplot(Fitness$Usage, 'Usage'),
+             plot_scatterplot(Fitness$Income, 'Income'),
+             plot_scatterplot(Fitness$Miles, 'Miles'),
+             ncol = 2)
+```
+
+* There seems to be a strong relationship between fitness and usage, fitness 
+  and miles.
+  
+
+**4. Relationship between Products and age,education,usage,income,miles and 
+   fitness**
+```{r}
+# Function to draw Beeswarm Plot
+
+plot_beeswarm = function(variable, variableNameString, binw){
+  ggplot(Fitness, 
+       aes(x = factor(Product,
+                      labels = c("TM195", #labelling the axis with categorical variable
+                                 "TM498", 
+                                 "TM798")), 
+           y = variable,  
+           color = variable)) +
+    labs(x = 'Product Code',y = variableNameString, color = variableNameString)+
+  geom_quasirandom(alpha = 0.7, 
+                   size = 1.5 )  #setting size of dots
+}
+ 
+
+grid.arrange(plot_beeswarm(Fitness$Age, 'Age'),
+             plot_beeswarm(Fitness$Education, 'Education'),
+             plot_beeswarm(Fitness$Usage, 'Usage'),
+             plot_beeswarm(Fitness$Income, 'Income'),
+             plot_beeswarm(Fitness$Miles, 'Miles'),
+             plot_beeswarm(Fitness$Fitness, 'Fitness'),
+             ncol=2)
+
+
+```
+ 
+ 
+ * Product TM798 tends to be the preferred model for customers with an income 
+   over $80,000
+ * TM 195, TM498 seems to be the most popular for users that want to use the 
+   product for 3 times or less
+ * From the above analysis it is safe to tell that for customers looking to run 
+   100 miles or less the   products to go to are TM 195, TM498. 
+
+```{r, include=FALSE}
+
+means<-aggregate(Fitness,by=list(Fitness$Product),mean)
+
+Fitness_group = means[,c("Group.1" ,
+          "Age","Education","Usage","Fitness")] ##,"Miles")]
+#View(Fitness_group)
+
+means.long<-  melt(Fitness_group,id.vars="Group.1")
+
+```
+
+  
+
+**5. Compare mean of age, education, usage,fitness across the 3 products **
+```{r}
+box= ggplot(means.long,aes(x=variable,y=value,fill=Group.1))+
+        geom_bar(stat="identity", position=position_dodge())+
+        scale_fill_discrete(name="Product",
+                      breaks=c("T195", "T498","T798"),
+                      labels=c("T195", "T498","T798"))+
+  xlab("Product")+ylab("Mean Percentage") 
+box
+
+```
+
+
+* Product TM798 seems to be the product that people seem to choose if they think 
+  they have a high fitness and are going to use the product more than an average 
+  customer
+
+
+### 4.Conclusion and Recommendation
+
+#### 4.1 Conclusion
+
+Based on the analysis of the Cardio Good Fitness data set below are the insights 
+that we have been able to deduce.
+
+* Products T195 seems to be the most popular treadmill out of the 3.
+* Majority of the customers seem to be in their 20's or early 30's,
+  basically younger people.
+* There is a significantly higher number of Male customers when compared to 
+  female customers.
+* A significant number of customers make less than $60,000.
+* Majority of the customers would like to use the treadmills for 3 times a week.
+* The average number of miles majority of the customers purchasing the T195, 
+  T498 treadmill want to run or walk is less than 100 per week.
+* Product T798 is purchased by people that want to use the treadmill more than 
+  the average usage and usually their fitness levels are higher than the average 
+  fitness among all the customers from the dataset.
+  
+<br /> 
+<br /> 
+<br /> 
+<br /> 
+<br /> 
+<br /> 
+
+#### 4.2 Recommendation
+ From the observations made from the data there are 2 distinctive customer 
+ profiles and below are the recommendations.
+
+
+**Targeted marketing campaigns for consumers with below characteristics**
+
+* By doing a targeted market campaign the company can effectively use the 
+  allocated marketing funds.
+
+**Consumer Profile I**
+
+
+* Consumers that use Product T195 and T498 usually use their treadmills for 
+  3 times a week and approximately want to run less than or equal to 100 miles
+  a week.
+* These products seem to be more budget friendly since all the customers that 
+  purchased these treadmills have an income of less than 70,000.
+* Products  T195 and T498 can be marketed for the consumers with these 
+  characteristics.
+
+<br /> 
+<br /> 
+
+**Consumer Profile II**
+
+
+* Consumers purchasing the T798 seem to be people that exercise more than an 
+  average customer and are willing to spend the money on it.
+* All the customers that purchased T798 either make more than 70,000 or have a
+  usage higher than the average customer from the group.
+* Product T798 seems to be a luxurious model and is preferred by fitness 
+  enthusiasts.
+* Product T798 can be marketed for consumers based on the above characteristics.  
